@@ -1,0 +1,87 @@
+name: Update Fee Rates
+
+# 触发条件
+on:
+  # 当Excel文件被push到main分支时触发
+  push:
+    branches:
+      - main
+    paths:
+      - '交易所标准.xlsx'
+  
+  # 支持手动触发
+  workflow_dispatch:
+
+# 权限配置
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1. 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # 2. 设置Node.js环境
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      # 3. 安装pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      # 4. 安装依赖
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 5. 安装系统依赖（Python + pandas）
+      - name: Install Python and dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-pip
+          pip3 install pandas openpyxl
+
+      # 6. 运行更新脚本
+      - name: Update fee rates
+        run: pnpm update-fees
+
+      # 7. 检查是否有变更
+      - name: Check for changes
+        id: verify
+        run: |
+          if git diff --quiet src/data/feeRates.ts; then
+            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "No changes in fee rates"
+          else
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "Fee rates updated!"
+          fi
+
+      # 8. 提交变更
+      - name: Commit changes
+        if: steps.verify.outputs.changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add src/data/feeRates.ts
+          git commit -m "chore: auto update fee rates from Excel [skip ci]"
+          git push
+
+      # 9. 输出结果
+      - name: Summary
+        run: |
+          if [ "${{ steps.verify.outputs.changes }}" == "true" ]; then
+            echo "✅ 费率配置已自动更新并提交"
+          else
+            echo "ℹ️ 费率配置无变化，无需更新"
+          fi
