@@ -195,14 +195,19 @@ except Exception as e:
 
   // 5. 统计信息
   console.log('📈 统计信息:');
-  const stats = {
+  const stats: {
+    total: number;
+    byExchange: Record<string, number>;
+    fixed: number;
+    percentage: number;
+  } = {
     total: feeConfigs.length,
     byExchange: {},
     fixed: 0,
     percentage: 0
   };
   
-  feeConfigs.forEach(config => {
+  feeConfigs.forEach((config: any) => {
     stats.byExchange[config.exchange] = (stats.byExchange[config.exchange] || 0) + 1;
     if (config.commissionType === 'fixed') {
       stats.fixed++;

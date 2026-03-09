@@ -12,12 +12,14 @@ export enum CommissionType {
 export interface StandardFeeRate {
   name: string; // 品种名称
   symbol: string; // 合约代码（含交割月）
+  base_symbol: string; // 品种代码（不含交割月）
   exchange: string; // 交易所
   contractSize: number; // 合约乘数
   commissionType: CommissionType; // 手续费类型
   standardCommissionRate: number; // 标准手续费率（万分之一，仅用于按金额费率）
   fixedCommissionPerLot: number; // 每手固定手续费（仅用于固定费率，单位：元）
   standardMarginRate: number; // 标准保证金率（%）
+  deliveryMonth: string; // 交割月
   description: string; // 品种说明
 }
 
