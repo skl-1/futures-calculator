@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,8 +9,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Calculator, MessageSquare, TrendingUp, TrendingDown, ArrowUp, ArrowDown, CheckCircle2, AlertCircle } from "lucide-react";
-import { standardFeeRates, getStandardFeeRate } from "@/data/feeRates";
+import { Send, Calculator, MessageSquare, TrendingUp, TrendingDown, ArrowUp, ArrowDown, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
+
+// 标准费率类型
+interface StandardFeeRate {
+  name: string;
+  symbol: string;
+  exchange: string;
+  contractSize: number;
+  standardCommissionRate: number;
+  standardMarginRate: number;
+  description: string;
+}
 
 // 计算结果类型
 interface CalculateResult {
@@ -47,11 +57,38 @@ export default function Home() {
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // 标准费率数据
+  const [standardRates, setStandardRates] = useState<StandardFeeRate[]>([]);
+  const [isLoadingRates, setIsLoadingRates] = useState(true);
+  const [lastUpdateTime, setLastUpdateTime] = useState<Date | null>(null);
+
+  // 加载标准费率
+  const loadStandardRates = async () => {
+    try {
+      setIsLoadingRates(true);
+      const response = await fetch("/api/standard-rates");
+      const data = await response.json();
+      if (data.success) {
+        setStandardRates(data.data);
+        setLastUpdateTime(new Date());
+      }
+    } catch (error) {
+      console.error("加载标准费率失败:", error);
+    } finally {
+      setIsLoadingRates(false);
+    }
+  };
+
+  // 初始化加载标准费率
+  useEffect(() => {
+    loadStandardRates();
+  }, []);
+
   // 获取当前合约的标准费率
-  const standardRate = getStandardFeeRate(symbol);
+  const standardRate = standardRates.find((r) => r.symbol === symbol);
 
   // 应用预设合约
-  const applyPreset = (preset: typeof standardFeeRates[0]) => {
+  const applyPreset = (preset: StandardFeeRate) => {
     setSymbol(preset.symbol);
     setContractSize(preset.contractSize.toString());
     // 将万分之X转换为百分比
@@ -199,8 +236,22 @@ export default function Home() {
             期货手续费与保证金计算器
           </h1>
           <p className="text-slate-600 dark:text-slate-400">
-            智能计算 + 费率对比 + AI 助手，让期货交易更简单
+            智能计算 + 实时费率 + AI 助手，让期货交易更简单
           </p>
+          {lastUpdateTime && (
+            <p className="mt-2 text-xs text-slate-500">
+              费率更新时间: {lastUpdateTime.toLocaleString()}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={loadStandardRates}
+                disabled={isLoadingRates}
+                className="ml-2"
+              >
+                <RefreshCw className={`h-3 w-3 ${isLoadingRates ? 'animate-spin' : ''}`} />
+              </Button>
+            </p>
+          )}
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
@@ -218,31 +269,40 @@ export default function Home() {
             <CardContent className="space-y-6">
               {/* 预设合约 */}
               <div>
-                <Label className="mb-2 block">快速选择合约（使用标准费率）</Label>
-                <div className="flex flex-wrap gap-2">
-                  {standardFeeRates.slice(0, 8).map((preset) => (
-                    <Button
-                      key={preset.symbol}
-                      variant={symbol === preset.symbol ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => applyPreset(preset)}
-                    >
-                      {preset.name}
-                    </Button>
-                  ))}
-                </div>
-                {standardRate && (
-                  <div className="mt-2 rounded-md bg-blue-50 p-3 text-sm dark:bg-blue-950/30">
-                    <p className="font-medium text-blue-900 dark:text-blue-300">
-                      {standardRate.name}（{standardRate.exchange}）
-                    </p>
-                    <p className="mt-1 text-blue-700 dark:text-blue-400">
-                      标准手续费率: {standardRate.standardCommissionRate}‱ (万分之一) = {(standardRate.standardCommissionRate / 100).toFixed(2)}%
-                    </p>
-                    <p className="text-blue-700 dark:text-blue-400">
-                      标准保证金率: {standardRate.standardMarginRate}%
-                    </p>
+                <Label className="mb-2 block">快速选择合约（使用实时标准费率）</Label>
+                {isLoadingRates ? (
+                  <div className="flex items-center gap-2 text-sm text-slate-500">
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    加载费率数据...
                   </div>
+                ) : (
+                  <>
+                    <div className="flex flex-wrap gap-2">
+                      {standardRates.slice(0, 8).map((preset) => (
+                        <Button
+                          key={preset.symbol}
+                          variant={symbol === preset.symbol ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => applyPreset(preset)}
+                        >
+                          {preset.name}
+                        </Button>
+                      ))}
+                    </div>
+                    {standardRate && (
+                      <div className="mt-2 rounded-md bg-blue-50 p-3 text-sm dark:bg-blue-950/30">
+                        <p className="font-medium text-blue-900 dark:text-blue-300">
+                          {standardRate.name}（{standardRate.exchange}）
+                        </p>
+                        <p className="mt-1 text-blue-700 dark:text-blue-400">
+                          标准手续费率: {standardRate.standardCommissionRate}‱ (万分之一) = {(standardRate.standardCommissionRate / 100).toFixed(2)}%
+                        </p>
+                        <p className="text-blue-700 dark:text-blue-400">
+                          标准保证金率: {standardRate.standardMarginRate}%
+                        </p>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -252,12 +312,12 @@ export default function Home() {
               <div className="space-y-4">
                 <div className="grid gap-2">
                   <Label htmlFor="symbol">合约代码</Label>
-                  <Select value={symbol} onValueChange={setSymbol}>
+                  <Select value={symbol} onValueChange={setSymbol} disabled={isLoadingRates}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {standardFeeRates.map((rate) => (
+                      {standardRates.map((rate) => (
                         <SelectItem key={rate.symbol} value={rate.symbol}>
                           {rate.symbol} - {rate.name}
                         </SelectItem>
@@ -434,7 +494,7 @@ export default function Home() {
                       <div>
                         <p className="mb-2 font-medium">你好！我是期货交易助手</p>
                         <p>我可以帮你计算手续费和保证金，解答期货交易问题</p>
-                        <p className="mt-2">提示：点击左侧合约按钮可快速使用标准费率计算</p>
+                        <p className="mt-2">提示：点击左侧合约按钮可快速使用实时标准费率计算</p>
                       </div>
                     </div>
                   ) : (
