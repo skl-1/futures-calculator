@@ -9,39 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Calculator, MessageSquare, TrendingUp, TrendingDown } from "lucide-react";
-
-// 常见期货合约预设
-const contractPresets = [
-  {
-    name: "螺纹钢",
-    symbol: "RB",
-    contractSize: 10,
-    commissionRate: 0.01,
-    marginRate: 8,
-  },
-  {
-    name: "原油",
-    symbol: "SC",
-    contractSize: 1000,
-    commissionRate: 0.05,
-    marginRate: 10,
-  },
-  {
-    name: "铜",
-    symbol: "CU",
-    contractSize: 5,
-    commissionRate: 0.05,
-    marginRate: 12,
-  },
-  {
-    name: "沪深300股指",
-    symbol: "IF",
-    contractSize: 300,
-    commissionRate: 0.02,
-    marginRate: 15,
-  },
-];
+import { Send, Calculator, MessageSquare, TrendingUp, TrendingDown, ArrowUp, ArrowDown, CheckCircle2, AlertCircle } from "lucide-react";
+import { standardFeeRates, getStandardFeeRate } from "@/data/feeRates";
 
 // 计算结果类型
 interface CalculateResult {
@@ -78,12 +47,16 @@ export default function Home() {
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // 获取当前合约的标准费率
+  const standardRate = getStandardFeeRate(symbol);
+
   // 应用预设合约
-  const applyPreset = (preset: typeof contractPresets[0]) => {
+  const applyPreset = (preset: typeof standardFeeRates[0]) => {
     setSymbol(preset.symbol);
     setContractSize(preset.contractSize.toString());
-    setCommissionRate(preset.commissionRate.toString());
-    setMarginRate(preset.marginRate.toString());
+    // 将万分之X转换为百分比
+    setCommissionRate((preset.standardCommissionRate / 100).toString());
+    setMarginRate(preset.standardMarginRate.toString());
     setResult(null);
   };
 
@@ -187,6 +160,36 @@ export default function Home() {
     }
   };
 
+  // 费率对比组件
+  const RateComparison = ({ label, actualRate, standardRate }: { label: string; actualRate: number; standardRate: number }) => {
+    const diff = actualRate - standardRate;
+    const diffPercent = parseFloat(((diff / standardRate) * 100).toFixed(1));
+    const isHigher = diff > 0;
+    const isLower = diff < 0;
+
+    return (
+      <div className="flex items-center justify-between rounded-lg border p-3">
+        <div>
+          <p className="text-sm font-medium">{label}</p>
+          <div className="mt-1 flex items-center gap-2">
+            <span className="text-xs text-slate-500">实际费率:</span>
+            <Badge variant="outline">{actualRate}%</Badge>
+            <span className="text-xs text-slate-500">标准费率:</span>
+            <Badge variant="secondary">{standardRate}%</Badge>
+          </div>
+        </div>
+        <div className={`flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium ${
+          isHigher ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+          isLower ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+          'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400'
+        }`}>
+          {isHigher ? <ArrowUp className="h-4 w-4" /> : isLower ? <ArrowDown className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+          {diff !== 0 ? `${Math.abs(diffPercent)}% ${isHigher ? '偏高' : '偏低'}` : '标准'}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <div className="container mx-auto p-4 md:p-8">
@@ -196,7 +199,7 @@ export default function Home() {
             期货手续费与保证金计算器
           </h1>
           <p className="text-slate-600 dark:text-slate-400">
-            智能计算 + AI 助手，让期货交易更简单
+            智能计算 + 费率对比 + AI 助手，让期货交易更简单
           </p>
         </div>
 
@@ -215,12 +218,12 @@ export default function Home() {
             <CardContent className="space-y-6">
               {/* 预设合约 */}
               <div>
-                <Label className="mb-2 block">快速选择合约</Label>
+                <Label className="mb-2 block">快速选择合约（使用标准费率）</Label>
                 <div className="flex flex-wrap gap-2">
-                  {contractPresets.map((preset) => (
+                  {standardFeeRates.slice(0, 8).map((preset) => (
                     <Button
-                      key={preset.name}
-                      variant="outline"
+                      key={preset.symbol}
+                      variant={symbol === preset.symbol ? "default" : "outline"}
                       size="sm"
                       onClick={() => applyPreset(preset)}
                     >
@@ -228,6 +231,19 @@ export default function Home() {
                     </Button>
                   ))}
                 </div>
+                {standardRate && (
+                  <div className="mt-2 rounded-md bg-blue-50 p-3 text-sm dark:bg-blue-950/30">
+                    <p className="font-medium text-blue-900 dark:text-blue-300">
+                      {standardRate.name}（{standardRate.exchange}）
+                    </p>
+                    <p className="mt-1 text-blue-700 dark:text-blue-400">
+                      标准手续费率: {standardRate.standardCommissionRate}‱ (万分之一) = {(standardRate.standardCommissionRate / 100).toFixed(2)}%
+                    </p>
+                    <p className="text-blue-700 dark:text-blue-400">
+                      标准保证金率: {standardRate.standardMarginRate}%
+                    </p>
+                  </div>
+                )}
               </div>
 
               <Separator />
@@ -236,12 +252,18 @@ export default function Home() {
               <div className="space-y-4">
                 <div className="grid gap-2">
                   <Label htmlFor="symbol">合约代码</Label>
-                  <Input
-                    id="symbol"
-                    value={symbol}
-                    onChange={(e) => setSymbol(e.target.value)}
-                    placeholder="例如: RB"
-                  />
+                  <Select value={symbol} onValueChange={setSymbol}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {standardFeeRates.map((rate) => (
+                        <SelectItem key={rate.symbol} value={rate.symbol}>
+                          {rate.symbol} - {rate.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="grid gap-2">
@@ -301,19 +323,24 @@ export default function Home() {
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="commissionRate">手续费率 (%)</Label>
+                  <Label htmlFor="commissionRate">实际手续费率 (%)</Label>
                   <Input
                     id="commissionRate"
                     type="number"
-                    step="0.01"
+                    step="0.001"
                     value={commissionRate}
                     onChange={(e) => setCommissionRate(e.target.value)}
                     placeholder="0.01"
                   />
+                  {standardRate && (
+                    <p className="text-xs text-slate-500">
+                      标准费率: {(standardRate.standardCommissionRate / 100).toFixed(3)}%
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="marginRate">保证金率 (%)</Label>
+                  <Label htmlFor="marginRate">实际保证金率 (%)</Label>
                   <Input
                     id="marginRate"
                     type="number"
@@ -322,6 +349,11 @@ export default function Home() {
                     onChange={(e) => setMarginRate(e.target.value)}
                     placeholder="8"
                   />
+                  {standardRate && (
+                    <p className="text-xs text-slate-500">
+                      标准费率: {standardRate.standardMarginRate}%
+                    </p>
+                  )}
                 </div>
 
                 <Button onClick={handleCalculate} className="w-full">
@@ -345,11 +377,11 @@ export default function Home() {
                     </div>
                     <Separator />
                     <div className="flex justify-between">
-                      <span className="text-slate-600 dark:text-slate-400">手续费 ({result.commissionRate}%)</span>
+                      <span className="text-slate-600 dark:text-slate-400">手续费</span>
                       <span className="font-medium text-blue-600">¥{result.commission.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-600 dark:text-slate-400">保证金 ({result.marginRate}%)</span>
+                      <span className="text-slate-600 dark:text-slate-400">保证金</span>
                       <span className="font-medium text-orange-600">¥{result.margin.toLocaleString()}</span>
                     </div>
                     <Separator />
@@ -358,6 +390,26 @@ export default function Home() {
                       <span className="text-lg font-bold text-green-600">¥{result.totalCost.toLocaleString()}</span>
                     </div>
                   </div>
+
+                  {/* 费率对比 */}
+                  {standardRate && (
+                    <div className="mt-4 space-y-3">
+                      <h4 className="flex items-center gap-2 font-semibold">
+                        <AlertCircle className="h-4 w-4 text-amber-500" />
+                        费率对比分析
+                      </h4>
+                      <RateComparison
+                        label="手续费率"
+                        actualRate={Number(result.commissionRate)}
+                        standardRate={Number((standardRate.standardCommissionRate / 100).toFixed(4))}
+                      />
+                      <RateComparison
+                        label="保证金率"
+                        actualRate={Number(result.marginRate)}
+                        standardRate={Number(standardRate.standardMarginRate)}
+                      />
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
@@ -382,6 +434,7 @@ export default function Home() {
                       <div>
                         <p className="mb-2 font-medium">你好！我是期货交易助手</p>
                         <p>我可以帮你计算手续费和保证金，解答期货交易问题</p>
+                        <p className="mt-2">提示：点击左侧合约按钮可快速使用标准费率计算</p>
                       </div>
                     </div>
                   ) : (
