@@ -55,13 +55,16 @@ try:
     df = df[df['合约品种'].notna()]
     df = df[df['合约品种'] != '合约品种']
     
+    # 重置索引，使其从0开始
+    df = df.reset_index(drop=True)
+    
     # 识别交易所边界
     exchange_boundaries = [
-        {'name': '上海期货交易所', 'start': 0, 'end': 234},
-        {'name': '大连商品交易所', 'start': 235, 'end': 484},
-        {'name': '郑州商品交易所', 'start': 485, 'end': 755},
-        {'name': '广州期货交易所', 'start': 756, 'end': 800},
-        {'name': '中国金融期货交易所', 'start': 801, 'end': None},
+        {'name': '上海期货交易所', 'start': 0, 'end': 236},
+        {'name': '大连商品交易所', 'start': 236, 'end': 487},
+        {'name': '郑州商品交易所', 'start': 487, 'end': 760},
+        {'name': '广州期货交易所', 'start': 760, 'end': 806},
+        {'name': '中国金融期货交易所', 'start': 806, 'end': None},
     ]
     
     def get_exchange(idx):
@@ -99,21 +102,26 @@ try:
         fee_text = str(fee_text).strip()
         
         if '元' in fee_text:
-            match = re.search(r'([\d.]+)元', fee_text)
+            match = re.search(r'([\\d.]+)元', fee_text)
             if match:
                 return ('fixed', float(match.group(1)))
         elif '万分之' in fee_text:
-            match = re.search(r'([\d.]+)/万分之', fee_text)
+            match = re.search(r'([\\d.]+)/万分之', fee_text)
             if match:
                 return ('percentage', float(match.group(1)))
+        
+        # 尝试纯数字（如果没有单位，假设是按金额）
+        if fee_text.replace('.', '').isdigit():
+            return ('fixed', float(fee_text))
+        
         return None, None
     
     def extract_symbol_info(contract_name):
         text = str(contract_name)
-        match = re.search(r'^([A-Za-z]+)\D*(\d{4})', text)
+        match = re.search(r'^([A-Za-z]+)\\D*(\\d{4})', text)
         if match:
             return match.group(1).upper(), match.group(2)
-        match = re.search(r'^([A-Za-z]+)\D*(\d{3})', text)
+        match = re.search(r'^([A-Za-z]+)\\D*(\\d{3})', text)
         if match:
             return match.group(1).upper(), "26" + match.group(2)
         return None, None
