@@ -143,6 +143,7 @@ try:
     main_contracts = df[df['备注'] == '主力合约'].copy()
     
     fee_configs = []
+    seen_symbols = set()  # 用于去重
     
     for idx, row in main_contracts.iterrows():
         contract_name = row['合约品种']
@@ -159,6 +160,12 @@ try:
             continue
         
         symbol_code = base_symbol + delivery_month
+        
+        # 去重：如果symbol已存在，跳过
+        if symbol_code in seen_symbols:
+            continue
+        seen_symbols.add(symbol_code)
+        
         contract_size = contract_sizes.get(base_symbol, 1)
         margin_percent = margin_rate * 100 if isinstance(margin_rate, (int, float)) else float(margin_rate)
         
@@ -268,12 +275,14 @@ export enum CommissionType {
 export interface StandardFeeRate {
   name: string; // 品种名称
   symbol: string; // 合约代码（含交割月）
+  base_symbol: string; // 品种代码（不含交割月）
   exchange: string; // 交易所
   contractSize: number; // 合约乘数
   commissionType: CommissionType; // 手续费类型
   standardCommissionRate: number; // 标准手续费率（万分之一，仅用于按金额费率）
   fixedCommissionPerLot: number; // 每手固定手续费（仅用于固定费率，单位：元）
   standardMarginRate: number; // 标准保证金率（%）
+  deliveryMonth: string; // 交割月
   description: string; // 品种说明
 }
 `;

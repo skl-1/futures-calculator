@@ -1,7 +1,7 @@
 // 标准期货手续费率和保证金率配置
 // 数据来源：GitHub https://github.com/skl-1/puble/blob/main/交易所标准.xlsx
-// 提取时间：2026/3/9
-// 覆盖品种：85个主力合约
+// 提取时间：2026/3/10
+// 覆盖品种：83个主力合约
 
 // 费率类型枚举
 export enum CommissionType {
@@ -581,32 +581,6 @@ export const standardFeeRates: StandardFeeRate[] = [
     "fixedCommissionPerLot": 0,
     "standardMarginRate": 15,
     "deliveryMonth": "2607",
-    "description": "大连商品交易所主力合约"
-  },
-  {
-    "name": "l聚乙烯月均价2605",
-    "symbol": "L2605",
-    "base_symbol": "L",
-    "exchange": "大连商品交易所",
-    "contractSize": 5,
-    "commissionType": CommissionType.FIXED,
-    "standardCommissionRate": 0,
-    "fixedCommissionPerLot": 1,
-    "standardMarginRate": 11,
-    "deliveryMonth": "2605",
-    "description": "大连商品交易所主力合约"
-  },
-  {
-    "name": "pp聚丙烯月均价2605",
-    "symbol": "PP2605",
-    "base_symbol": "PP",
-    "exchange": "大连商品交易所",
-    "contractSize": 5,
-    "commissionType": CommissionType.FIXED,
-    "standardCommissionRate": 0,
-    "fixedCommissionPerLot": 1,
-    "standardMarginRate": 11,
-    "deliveryMonth": "2605",
     "description": "大连商品交易所主力合约"
   },
   {
