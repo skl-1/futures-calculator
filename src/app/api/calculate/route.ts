@@ -1,4 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getStandardFeeRate, CommissionType } from "@/data/feeRates";
+
+// 费率类型枚举
+enum CommissionTypeAPI {
+  FIXED = "fixed", // 固定费率（每手固定金额）
+  PERCENTAGE = "percentage", // 按金额费率（按合约价值的百分比）
+}
 
 // 期货计算接口类型
 interface CalculateRequest {
@@ -6,9 +13,10 @@ interface CalculateRequest {
   price: number; // 价格
   quantity: number; // 数量（手）
   contractSize: number; // 合约乘数
-  commissionRate: number; // 手续费率
+  commissionRate: number; // 手续费率（用于按金额费率）或每手手续费（用于固定费率）
   marginRate: number; // 保证金率
   direction: 'long' | 'short'; // 交易方向
+  commissionType?: CommissionTypeAPI; // 手续费类型（可选，默认根据合约代码获取）
 }
 
 // 计算结果接口
@@ -19,11 +27,17 @@ interface CalculateResult {
   quantity: number;
   contractSize: number;
   contractValue: number; // 合约价值
-  commissionRate: number;
+  commissionType: string; // 手续费类型
+  commissionRate: number; // 显示的费率（按金额或固定金额）
   commission: number; // 手续费
   marginRate: number;
   margin: number; // 保证金
   totalCost: number; // 总成本（保证金 + 手续费）
+  standardFeeRate?: { // 标准费率信息（用于对比）
+    commissionType: string;
+    commissionRate: number;
+    marginRate: number;
+  };
 }
 
 export async function POST(request: NextRequest) {
@@ -64,14 +78,50 @@ export async function POST(request: NextRequest) {
     // 计算合约价值
     const contractValue = body.price * body.quantity * body.contractSize;
 
+    // 获取标准费率信息
+    const standardRate = getStandardFeeRate(body.symbol);
+    
+    // 确定手续费类型（优先使用传入的，否则使用标准配置）
+    let commissionType: CommissionTypeAPI;
+    if (body.commissionType) {
+      commissionType = body.commissionType;
+    } else if (standardRate) {
+      commissionType = standardRate.commissionType === CommissionType.FIXED 
+        ? CommissionTypeAPI.FIXED 
+        : CommissionTypeAPI.PERCENTAGE;
+    } else {
+      // 默认按金额费率
+      commissionType = CommissionTypeAPI.PERCENTAGE;
+    }
+
     // 计算手续费
-    const commission = contractValue * (body.commissionRate / 100);
+    let commission: number;
+    let displayCommissionRate: number;
+
+    if (commissionType === CommissionTypeAPI.FIXED) {
+      // 固定费率：每手固定金额 × 手数
+      commission = body.commissionRate * body.quantity;
+      displayCommissionRate = body.commissionRate; // 显示每手手续费
+    } else {
+      // 按金额费率：合约价值 × 费率率
+      commission = contractValue * (body.commissionRate / 100);
+      displayCommissionRate = body.commissionRate; // 显示费率百分比
+    }
 
     // 计算保证金
     const margin = contractValue * (body.marginRate / 100);
 
     // 计算总成本
     const totalCost = margin + commission;
+
+    // 构建标准费率信息（用于对比）
+    const standardFeeRateInfo = standardRate ? {
+      commissionType: standardRate.commissionType,
+      commissionRate: standardRate.commissionType === CommissionType.FIXED
+        ? standardRate.fixedCommissionPerLot // 每手固定金额
+        : standardRate.standardCommissionRate / 100, // 费率百分比
+      marginRate: standardRate.standardMarginRate,
+    } : undefined;
 
     const result: CalculateResult = {
       symbol: body.symbol,
@@ -80,11 +130,13 @@ export async function POST(request: NextRequest) {
       quantity: body.quantity,
       contractSize: body.contractSize,
       contractValue: Number(contractValue.toFixed(2)),
-      commissionRate: body.commissionRate,
+      commissionType: commissionType === CommissionTypeAPI.FIXED ? '固定费率' : '按金额费率',
+      commissionRate: Number(displayCommissionRate.toFixed(4)),
       commission: Number(commission.toFixed(2)),
       marginRate: body.marginRate,
       margin: Number(margin.toFixed(2)),
       totalCost: Number(totalCost.toFixed(2)),
+      standardFeeRate: standardFeeRateInfo,
     };
 
     return NextResponse.json({ success: true, data: result });

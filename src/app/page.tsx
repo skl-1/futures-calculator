@@ -11,13 +11,21 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Calculator, MessageSquare, TrendingUp, TrendingDown, ArrowUp, ArrowDown, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
 
+// 费率类型枚举
+enum CommissionType {
+  FIXED = "fixed", // 固定费率（每手固定金额）
+  PERCENTAGE = "percentage", // 按金额费率（按合约价值的百分比）
+}
+
 // 标准费率类型
 interface StandardFeeRate {
   name: string;
   symbol: string;
   exchange: string;
   contractSize: number;
+  commissionType: CommissionType;
   standardCommissionRate: number;
+  fixedCommissionPerLot: number;
   standardMarginRate: number;
   description: string;
 }
@@ -30,6 +38,7 @@ interface CalculateResult {
   quantity: number;
   contractSize: number;
   contractValue: number;
+  commissionType: string;
   commissionRate: number;
   commission: number;
   marginRate: number;
@@ -91,8 +100,14 @@ export default function Home() {
   const applyPreset = (preset: StandardFeeRate) => {
     setSymbol(preset.symbol);
     setContractSize(preset.contractSize.toString());
-    // 将万分之X转换为百分比
-    setCommissionRate((preset.standardCommissionRate / 100).toString());
+    // 根据费率类型设置手续费
+    if (preset.commissionType === "fixed") {
+      // 固定费率：每手固定金额
+      setCommissionRate(preset.fixedCommissionPerLot.toString());
+    } else {
+      // 按金额费率：将万分之X转换为百分比
+      setCommissionRate((preset.standardCommissionRate / 100).toString());
+    }
     setMarginRate(preset.standardMarginRate.toString());
     setResult(null);
   };
@@ -295,8 +310,17 @@ export default function Home() {
                           {standardRate.name}（{standardRate.exchange}）
                         </p>
                         <p className="mt-1 text-blue-700 dark:text-blue-400">
-                          标准手续费率: {standardRate.standardCommissionRate}‱ (万分之一) = {(standardRate.standardCommissionRate / 100).toFixed(2)}%
+                          费率类型: <Badge variant="outline">{standardRate.commissionType === "fixed" ? "固定费率" : "按金额费率"}</Badge>
                         </p>
+                        {standardRate.commissionType === "fixed" ? (
+                          <p className="text-blue-700 dark:text-blue-400">
+                            标准手续费: 每手 {standardRate.fixedCommissionPerLot} 元
+                          </p>
+                        ) : (
+                          <p className="text-blue-700 dark:text-blue-400">
+                            标准手续费率: {standardRate.standardCommissionRate}‱ (万分之一) = {(standardRate.standardCommissionRate / 100).toFixed(2)}%
+                          </p>
+                        )}
                         <p className="text-blue-700 dark:text-blue-400">
                           标准保证金率: {standardRate.standardMarginRate}%
                         </p>
@@ -383,18 +407,22 @@ export default function Home() {
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="commissionRate">实际手续费率 (%)</Label>
+                  <Label htmlFor="commissionRate">
+                    {standardRate?.commissionType === "fixed" ? "每手手续费 (元)" : "实际手续费率 (%)"}
+                  </Label>
                   <Input
                     id="commissionRate"
                     type="number"
-                    step="0.001"
+                    step={standardRate?.commissionType === "fixed" ? "0.1" : "0.001"}
                     value={commissionRate}
                     onChange={(e) => setCommissionRate(e.target.value)}
-                    placeholder="0.01"
+                    placeholder={standardRate?.commissionType === "fixed" ? "6" : "0.01"}
                   />
                   {standardRate && (
                     <p className="text-xs text-slate-500">
-                      标准费率: {(standardRate.standardCommissionRate / 100).toFixed(3)}%
+                      {standardRate.commissionType === "fixed"
+                        ? `标准费率: 每手 ${standardRate.fixedCommissionPerLot} 元`
+                        : `标准费率: ${(standardRate.standardCommissionRate / 100).toFixed(3)}%`}
                     </p>
                   )}
                 </div>
@@ -435,6 +463,12 @@ export default function Home() {
                       <span className="text-slate-600 dark:text-slate-400">合约价值</span>
                       <span className="font-medium">¥{result.contractValue.toLocaleString()}</span>
                     </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 dark:text-slate-400">费率类型</span>
+                      <span className="font-medium">
+                        <Badge variant="outline">{result.commissionType}</Badge>
+                      </span>
+                    </div>
                     <Separator />
                     <div className="flex justify-between">
                       <span className="text-slate-600 dark:text-slate-400">手续费</span>
@@ -458,11 +492,35 @@ export default function Home() {
                         <AlertCircle className="h-4 w-4 text-amber-500" />
                         费率对比分析
                       </h4>
-                      <RateComparison
-                        label="手续费率"
-                        actualRate={Number(result.commissionRate)}
-                        standardRate={Number((standardRate.standardCommissionRate / 100).toFixed(4))}
-                      />
+                      {standardRate.commissionType === "fixed" ? (
+                        <div className="rounded-lg border p-3">
+                          <p className="text-sm font-medium">手续费对比</p>
+                          <div className="mt-1 flex items-center gap-2">
+                            <span className="text-xs text-slate-500">实际每手:</span>
+                            <Badge variant="outline">¥{result.commissionRate} /手</Badge>
+                            <span className="text-xs text-slate-500">标准每手:</span>
+                            <Badge variant="secondary">¥{standardRate.fixedCommissionPerLot} /手</Badge>
+                          </div>
+                          <div className={`mt-2 flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium ${
+                            result.commissionRate > standardRate.fixedCommissionPerLot ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                            result.commissionRate < standardRate.fixedCommissionPerLot ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                            'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400'
+                          }`}>
+                            {result.commissionRate > standardRate.fixedCommissionPerLot ? <ArrowUp className="h-4 w-4" /> :
+                             result.commissionRate < standardRate.fixedCommissionPerLot ? <ArrowDown className="h-4 w-4" /> :
+                             <CheckCircle2 className="h-4 w-4" />}
+                            {result.commissionRate !== standardRate.fixedCommissionPerLot
+                              ? `¥${Math.abs(result.commissionRate - standardRate.fixedCommissionPerLot).toFixed(2)} ${result.commissionRate > standardRate.fixedCommissionPerLot ? '偏高' : '偏低'}`
+                              : '标准'}
+                          </div>
+                        </div>
+                      ) : (
+                        <RateComparison
+                          label="手续费率"
+                          actualRate={Number(result.commissionRate)}
+                          standardRate={Number((standardRate.standardCommissionRate / 100).toFixed(4))}
+                        />
+                      )}
                       <RateComparison
                         label="保证金率"
                         actualRate={Number(result.marginRate)}
