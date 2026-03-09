@@ -1,7 +1,7 @@
 // 标准期货手续费率和保证金率配置
 // 数据来源：GitHub https://github.com/skl-1/puble/blob/main/交易所标准.xlsx
 // 提取时间：2026/3/9
-// 覆盖品种：79个主力合约
+// 覆盖品种：85个主力合约
 
 // 费率类型枚举
 export enum CommissionType {
@@ -922,6 +922,19 @@ export const standardFeeRates: StandardFeeRate[] = [
     "description": "郑州商品交易所主力合约"
   },
   {
+    "name": "nr20号胶2605",
+    "symbol": "NR2605",
+    "base_symbol": "NR",
+    "exchange": "郑州商品交易所",
+    "contractSize": 10,
+    "commissionType": CommissionType.PERCENTAGE,
+    "standardCommissionRate": 0.2,
+    "fixedCommissionPerLot": 0,
+    "standardMarginRate": 11,
+    "deliveryMonth": "2605",
+    "description": "郑州商品交易所主力合约"
+  },
+  {
     "name": "ec集运指数2604",
     "symbol": "EC2604",
     "base_symbol": "EC",
@@ -1013,8 +1026,60 @@ export const standardFeeRates: StandardFeeRate[] = [
     "description": "广州期货交易所主力合约"
   },
   {
+    "name": "TS2年期国债2606",
+    "symbol": "TS2606",
+    "base_symbol": "TS",
+    "exchange": "广州期货交易所",
+    "contractSize": 20000,
+    "commissionType": CommissionType.FIXED,
+    "standardCommissionRate": 0,
+    "fixedCommissionPerLot": 3,
+    "standardMarginRate": 0.5,
+    "deliveryMonth": "2606",
+    "description": "广州期货交易所主力合约"
+  },
+  {
+    "name": "TF5年期国债2606",
+    "symbol": "TF2606",
+    "base_symbol": "TF",
+    "exchange": "中国金融期货交易所",
+    "contractSize": 10000,
+    "commissionType": CommissionType.FIXED,
+    "standardCommissionRate": 0,
+    "fixedCommissionPerLot": 3,
+    "standardMarginRate": 1.2,
+    "deliveryMonth": "2606",
+    "description": "中国金融期货交易所主力合约"
+  },
+  {
+    "name": "T10年国债2606",
+    "symbol": "T2606",
+    "base_symbol": "T",
+    "exchange": "中国金融期货交易所",
+    "contractSize": 10000,
+    "commissionType": CommissionType.FIXED,
+    "standardCommissionRate": 0,
+    "fixedCommissionPerLot": 3,
+    "standardMarginRate": 2,
+    "deliveryMonth": "2606",
+    "description": "中国金融期货交易所主力合约"
+  },
+  {
+    "name": "TL30年期国债2606",
+    "symbol": "TL2606",
+    "base_symbol": "TL",
+    "exchange": "中国金融期货交易所",
+    "contractSize": 10000,
+    "commissionType": CommissionType.FIXED,
+    "standardCommissionRate": 0,
+    "fixedCommissionPerLot": 3,
+    "standardMarginRate": 3.5,
+    "deliveryMonth": "2606",
+    "description": "中国金融期货交易所主力合约"
+  },
+  {
     "name": "IF沪深300指数2603",
-    "symbol": "IF26300",
+    "symbol": "IF2603",
     "base_symbol": "IF",
     "exchange": "中国金融期货交易所",
     "contractSize": 300,
@@ -1022,12 +1087,12 @@ export const standardFeeRates: StandardFeeRate[] = [
     "standardCommissionRate": 0.23,
     "fixedCommissionPerLot": 0,
     "standardMarginRate": 12,
-    "deliveryMonth": "26300",
+    "deliveryMonth": "2603",
     "description": "中国金融期货交易所主力合约"
   },
   {
     "name": "IC中证500股指2603",
-    "symbol": "IC26500",
+    "symbol": "IC2603",
     "base_symbol": "IC",
     "exchange": "中国金融期货交易所",
     "contractSize": 200,
@@ -1035,12 +1100,25 @@ export const standardFeeRates: StandardFeeRate[] = [
     "standardCommissionRate": 0.23,
     "fixedCommissionPerLot": 0,
     "standardMarginRate": 12,
-    "deliveryMonth": "26500",
+    "deliveryMonth": "2603",
+    "description": "中国金融期货交易所主力合约"
+  },
+  {
+    "name": "IH上证50指数2603",
+    "symbol": "IH2603",
+    "base_symbol": "IH",
+    "exchange": "中国金融期货交易所",
+    "contractSize": 300,
+    "commissionType": CommissionType.PERCENTAGE,
+    "standardCommissionRate": 0.23,
+    "fixedCommissionPerLot": 0,
+    "standardMarginRate": 12,
+    "deliveryMonth": "2603",
     "description": "中国金融期货交易所主力合约"
   },
   {
     "name": "IM中证1000股指2603",
-    "symbol": "IM1000",
+    "symbol": "IM2603",
     "base_symbol": "IM",
     "exchange": "中国金融期货交易所",
     "contractSize": 200,
@@ -1048,7 +1126,7 @@ export const standardFeeRates: StandardFeeRate[] = [
     "standardCommissionRate": 0.23,
     "fixedCommissionPerLot": 0,
     "standardMarginRate": 12,
-    "deliveryMonth": "1000",
+    "deliveryMonth": "2603",
     "description": "中国金融期货交易所主力合约"
   }
 ];

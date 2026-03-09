@@ -40,7 +40,7 @@ try {
   }
 
   const pythonScriptPath = '/tmp/parse_fees.py';
-  const pythonScript = `
+  const pythonScript = String.raw`
 import pandas as pd
 import json
 import re
@@ -102,11 +102,11 @@ try:
         fee_text = str(fee_text).strip()
         
         if '元' in fee_text:
-            match = re.search(r'([\\d.]+)元', fee_text)
+            match = re.search(r'([\d.]+)元', fee_text)
             if match:
                 return ('fixed', float(match.group(1)))
         elif '万分之' in fee_text:
-            match = re.search(r'([\\d.]+)/万分之', fee_text)
+            match = re.search(r'([\d.]+)/万分之', fee_text)
             if match:
                 return ('percentage', float(match.group(1)))
         
@@ -118,12 +118,25 @@ try:
     
     def extract_symbol_info(contract_name):
         text = str(contract_name)
-        match = re.search(r'^([A-Za-z]+)\\D*(\\d{4})', text)
-        if match:
-            return match.group(1).upper(), match.group(2)
-        match = re.search(r'^([A-Za-z]+)\\D*(\\d{3})', text)
-        if match:
-            return match.group(1).upper(), "26" + match.group(2)
+        
+        # 提取所有字母作为品种代码
+        letters = re.findall(r'[A-Za-z]+', text)
+        if not letters:
+            return None, None
+        base_symbol = letters[0].upper()
+        
+        # 提取最后一组4位数字
+        digits = re.findall(r'\d{4}', text)
+        if digits:
+            delivery_month = digits[-1]
+            return base_symbol, delivery_month
+        
+        # 如果没有4位数字，尝试提取3位数字（补26）
+        digits_3 = re.findall(r'\d{3}', text)
+        if digits_3:
+            delivery_month = digits_3[-1]
+            return base_symbol, "26" + delivery_month
+        
         return None, None
     
     # 提取主力合约
