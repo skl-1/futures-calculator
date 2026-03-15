@@ -1,7 +1,7 @@
 // 标准期货手续费率和保证金率配置
 // 数据来源：GitHub https://github.com/skl-1/puble/blob/main/交易所标准.xlsx
-// 提取时间：2026/3/14
-// 覆盖品种：83个主力合约
+// 提取时间：2026/3/15
+// 覆盖品种：81个主力合约
 
 // 费率类型枚举
 export enum CommissionType {
@@ -90,8 +90,8 @@ export const standardFeeRates: StandardFeeRate[] = [
     "description": "上海期货交易所主力合约"
   },
   {
-    "name": "al沪铝2604",
-    "symbol": "AL2604",
+    "name": "al沪铝2605",
+    "symbol": "AL2605",
     "base_symbol": "AL",
     "exchange": "上海期货交易所",
     "contractSize": 5,
@@ -99,7 +99,7 @@ export const standardFeeRates: StandardFeeRate[] = [
     "standardCommissionRate": 0,
     "fixedCommissionPerLot": 3,
     "standardMarginRate": 12,
-    "deliveryMonth": "2604",
+    "deliveryMonth": "2605",
     "description": "上海期货交易所主力合约"
   },
   {
@@ -207,8 +207,8 @@ export const standardFeeRates: StandardFeeRate[] = [
     "description": "上海期货交易所主力合约"
   },
   {
-    "name": "bu沥青2604",
-    "symbol": "BU2604",
+    "name": "bu沥青2606",
+    "symbol": "BU2606",
     "base_symbol": "BU",
     "exchange": "上海期货交易所",
     "contractSize": 10,
@@ -216,7 +216,7 @@ export const standardFeeRates: StandardFeeRate[] = [
     "standardCommissionRate": 0.5,
     "fixedCommissionPerLot": 0,
     "standardMarginRate": 14,
-    "deliveryMonth": "2604",
+    "deliveryMonth": "2606",
     "description": "上海期货交易所主力合约"
   },
   {
@@ -226,7 +226,7 @@ export const standardFeeRates: StandardFeeRate[] = [
     "exchange": "上海期货交易所",
     "contractSize": 50,
     "commissionType": CommissionType.PERCENTAGE,
-    "standardCommissionRate": 0.5,
+    "standardCommissionRate": 1,
     "fixedCommissionPerLot": 0,
     "standardMarginRate": 22,
     "deliveryMonth": "2605",
@@ -293,7 +293,7 @@ export const standardFeeRates: StandardFeeRate[] = [
     "commissionType": CommissionType.FIXED,
     "standardCommissionRate": 0,
     "fixedCommissionPerLot": 2.5,
-    "standardMarginRate": 7,
+    "standardMarginRate": 11,
     "deliveryMonth": "2605",
     "description": "大连商品交易所主力合约"
   },
@@ -306,7 +306,7 @@ export const standardFeeRates: StandardFeeRate[] = [
     "commissionType": CommissionType.FIXED,
     "standardCommissionRate": 0,
     "fixedCommissionPerLot": 2.5,
-    "standardMarginRate": 8,
+    "standardMarginRate": 12,
     "deliveryMonth": "2605",
     "description": "大连商品交易所主力合约"
   },
@@ -449,7 +449,7 @@ export const standardFeeRates: StandardFeeRate[] = [
     "commissionType": CommissionType.PERCENTAGE,
     "standardCommissionRate": 1,
     "fixedCommissionPerLot": 0,
-    "standardMarginRate": 12,
+    "standardMarginRate": 13,
     "deliveryMonth": "2605",
     "description": "大连商品交易所主力合约"
   },
@@ -571,8 +571,8 @@ export const standardFeeRates: StandardFeeRate[] = [
     "description": "大连商品交易所主力合约"
   },
   {
-    "name": "bb胶板2607",
-    "symbol": "BB2607",
+    "name": "bb胶板2605",
+    "symbol": "BB2605",
     "base_symbol": "BB",
     "exchange": "大连商品交易所",
     "contractSize": 10,
@@ -580,7 +580,7 @@ export const standardFeeRates: StandardFeeRate[] = [
     "standardCommissionRate": 1,
     "fixedCommissionPerLot": 0,
     "standardMarginRate": 15,
-    "deliveryMonth": "2607",
+    "deliveryMonth": "2605",
     "description": "大连商品交易所主力合约"
   },
   {
@@ -618,7 +618,7 @@ export const standardFeeRates: StandardFeeRate[] = [
     "commissionType": CommissionType.FIXED,
     "standardCommissionRate": 0,
     "fixedCommissionPerLot": 2,
-    "standardMarginRate": 7,
+    "standardMarginRate": 9,
     "deliveryMonth": "26605",
     "description": "郑州商品交易所主力合约"
   },
@@ -748,47 +748,34 @@ export const standardFeeRates: StandardFeeRate[] = [
     "commissionType": CommissionType.PERCENTAGE,
     "standardCommissionRate": 1,
     "fixedCommissionPerLot": 0,
-    "standardMarginRate": 11,
+    "standardMarginRate": 15,
     "deliveryMonth": "26605",
     "description": "郑州商品交易所主力合约"
   },
   {
-    "name": "PX对二甲苯605",
-    "symbol": "PX26605",
-    "base_symbol": "PX",
+    "name": "TAPTA605",
+    "symbol": "TAPTA26605",
+    "base_symbol": "TAPTA",
     "exchange": "郑州商品交易所",
-    "contractSize": 5,
-    "commissionType": CommissionType.PERCENTAGE,
-    "standardCommissionRate": 1,
-    "fixedCommissionPerLot": 0,
-    "standardMarginRate": 12,
-    "deliveryMonth": "26605",
-    "description": "郑州商品交易所主力合约"
-  },
-  {
-    "name": "PTA605",
-    "symbol": "PTA26605",
-    "base_symbol": "PTA",
-    "exchange": "郑州商品交易所",
-    "contractSize": 5,
+    "contractSize": 1,
     "commissionType": CommissionType.FIXED,
     "standardCommissionRate": 0,
     "fixedCommissionPerLot": 3,
-    "standardMarginRate": 12,
+    "standardMarginRate": 15,
     "deliveryMonth": "26605",
     "description": "郑州商品交易所主力合约"
   },
   {
-    "name": "PF短纤604",
-    "symbol": "PF26604",
+    "name": "PF短纤606",
+    "symbol": "PF26606",
     "base_symbol": "PF",
     "exchange": "郑州商品交易所",
     "contractSize": 5,
     "commissionType": CommissionType.FIXED,
     "standardCommissionRate": 0,
     "fixedCommissionPerLot": 2,
-    "standardMarginRate": 12,
-    "deliveryMonth": "26604",
+    "standardMarginRate": 13,
+    "deliveryMonth": "26606",
     "description": "郑州商品交易所主力合约"
   },
   {
@@ -800,7 +787,7 @@ export const standardFeeRates: StandardFeeRate[] = [
     "commissionType": CommissionType.PERCENTAGE,
     "standardCommissionRate": 0.5,
     "fixedCommissionPerLot": 0,
-    "standardMarginRate": 12,
+    "standardMarginRate": 14,
     "deliveryMonth": "26605",
     "description": "郑州商品交易所主力合约"
   },
@@ -826,20 +813,7 @@ export const standardFeeRates: StandardFeeRate[] = [
     "commissionType": CommissionType.PERCENTAGE,
     "standardCommissionRate": 1,
     "fixedCommissionPerLot": 0,
-    "standardMarginRate": 8,
-    "deliveryMonth": "26605",
-    "description": "郑州商品交易所主力合约"
-  },
-  {
-    "name": "SH烧碱605",
-    "symbol": "SH26605",
-    "base_symbol": "SH",
-    "exchange": "郑州商品交易所",
-    "contractSize": 20,
-    "commissionType": CommissionType.PERCENTAGE,
-    "standardCommissionRate": 1,
-    "fixedCommissionPerLot": 0,
-    "standardMarginRate": 12,
+    "standardMarginRate": 10,
     "deliveryMonth": "26605",
     "description": "郑州商品交易所主力合约"
   },
@@ -852,7 +826,7 @@ export const standardFeeRates: StandardFeeRate[] = [
     "commissionType": CommissionType.PERCENTAGE,
     "standardCommissionRate": 2,
     "fixedCommissionPerLot": 0,
-    "standardMarginRate": 9,
+    "standardMarginRate": 12,
     "deliveryMonth": "26605",
     "description": "郑州商品交易所主力合约"
   },
@@ -865,7 +839,7 @@ export const standardFeeRates: StandardFeeRate[] = [
     "commissionType": CommissionType.FIXED,
     "standardCommissionRate": 0,
     "fixedCommissionPerLot": 6,
-    "standardMarginRate": 10,
+    "standardMarginRate": 13,
     "deliveryMonth": "26605",
     "description": "郑州商品交易所主力合约"
   },
@@ -877,7 +851,7 @@ export const standardFeeRates: StandardFeeRate[] = [
     "contractSize": 1000,
     "commissionType": CommissionType.FIXED,
     "standardCommissionRate": 0,
-    "fixedCommissionPerLot": 19.99,
+    "fixedCommissionPerLot": 40,
     "standardMarginRate": 22,
     "deliveryMonth": "2604",
     "description": "郑州商品交易所主力合约"
@@ -889,7 +863,7 @@ export const standardFeeRates: StandardFeeRate[] = [
     "exchange": "郑州商品交易所",
     "contractSize": 10,
     "commissionType": CommissionType.PERCENTAGE,
-    "standardCommissionRate": 0.1,
+    "standardCommissionRate": 1,
     "fixedCommissionPerLot": 0,
     "standardMarginRate": 22,
     "deliveryMonth": "2605",
@@ -938,14 +912,14 @@ export const standardFeeRates: StandardFeeRate[] = [
     "name": "lc碳酸锂2605",
     "symbol": "LC2605",
     "base_symbol": "LC",
-    "exchange": "郑州商品交易所",
+    "exchange": "广州期货交易所",
     "contractSize": 1,
     "commissionType": CommissionType.PERCENTAGE,
     "standardCommissionRate": 3.2,
     "fixedCommissionPerLot": 0,
     "standardMarginRate": 15,
     "deliveryMonth": "2605",
-    "description": "郑州商品交易所主力合约"
+    "description": "广州期货交易所主力合约"
   },
   {
     "name": "ps多晶硅2605",
@@ -1003,14 +977,14 @@ export const standardFeeRates: StandardFeeRate[] = [
     "name": "TS2年期国债2606",
     "symbol": "TS2606",
     "base_symbol": "TS",
-    "exchange": "广州期货交易所",
+    "exchange": "中国金融期货交易所",
     "contractSize": 20000,
     "commissionType": CommissionType.FIXED,
     "standardCommissionRate": 0,
     "fixedCommissionPerLot": 3,
     "standardMarginRate": 0.5,
     "deliveryMonth": "2606",
-    "description": "广州期货交易所主力合约"
+    "description": "中国金融期货交易所主力合约"
   },
   {
     "name": "TF5年期国债2606",
