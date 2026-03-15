@@ -1,7 +1,7 @@
 // 标准期货手续费率和保证金率配置
 // 数据来源：GitHub https://github.com/skl-1/puble/blob/main/交易所标准.xlsx
 // 提取时间：2026/3/15
-// 覆盖品种：81个主力合约
+// 覆盖品种：80个主力合约
 
 // 费率类型枚举
 export enum CommissionType {
@@ -494,10 +494,10 @@ export const standardFeeRates: StandardFeeRate[] = [
   },
   {
     "name": "vPVC2605",
-    "symbol": "VPVC2605",
-    "base_symbol": "VPVC",
+    "symbol": "V2605",
+    "base_symbol": "V",
     "exchange": "大连商品交易所",
-    "contractSize": 1,
+    "contractSize": 5,
     "commissionType": CommissionType.FIXED,
     "standardCommissionRate": 0,
     "fixedCommissionPerLot": 1,
@@ -536,7 +536,7 @@ export const standardFeeRates: StandardFeeRate[] = [
     "symbol": "BZ2604",
     "base_symbol": "BZ",
     "exchange": "大连商品交易所",
-    "contractSize": 1,
+    "contractSize": 5,
     "commissionType": CommissionType.PERCENTAGE,
     "standardCommissionRate": 1,
     "fixedCommissionPerLot": 0,
@@ -580,19 +580,6 @@ export const standardFeeRates: StandardFeeRate[] = [
     "standardCommissionRate": 1,
     "fixedCommissionPerLot": 0,
     "standardMarginRate": 15,
-    "deliveryMonth": "2605",
-    "description": "大连商品交易所主力合约"
-  },
-  {
-    "name": "v聚氯乙烯月均价2605",
-    "symbol": "V2605",
-    "base_symbol": "V",
-    "exchange": "大连商品交易所",
-    "contractSize": 5,
-    "commissionType": CommissionType.FIXED,
-    "standardCommissionRate": 0,
-    "fixedCommissionPerLot": 1,
-    "standardMarginRate": 11,
     "deliveryMonth": "2605",
     "description": "大连商品交易所主力合约"
   },
@@ -744,7 +731,7 @@ export const standardFeeRates: StandardFeeRate[] = [
     "symbol": "PL26605",
     "base_symbol": "PL",
     "exchange": "郑州商品交易所",
-    "contractSize": 1,
+    "contractSize": 5,
     "commissionType": CommissionType.PERCENTAGE,
     "standardCommissionRate": 1,
     "fixedCommissionPerLot": 0,
@@ -754,10 +741,10 @@ export const standardFeeRates: StandardFeeRate[] = [
   },
   {
     "name": "TAPTA605",
-    "symbol": "TAPTA26605",
-    "base_symbol": "TAPTA",
+    "symbol": "TA26605",
+    "base_symbol": "TA",
     "exchange": "郑州商品交易所",
-    "contractSize": 1,
+    "contractSize": 5,
     "commissionType": CommissionType.FIXED,
     "standardCommissionRate": 0,
     "fixedCommissionPerLot": 3,

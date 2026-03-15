@@ -79,21 +79,26 @@ try:
     
     df['交易所'] = df.index.map(get_exchange)
     
-    # 合约乘数映射
+    # 合约乘数映射（标准交易所规定）
     contract_sizes = {
+        # 上海期货交易所
         'AG': 15, 'AU': 1000, 'SN': 1, 'CU': 5, 'NI': 1, 'AL': 5, 'PB': 5, 'ZN': 5,
         'AO': 20, 'WR': 10, 'SS': 5, 'AD': 5, 'RB': 10, 'HC': 10, 'BU': 10,
         'FU': 50, 'BR': 10, 'RU': 10, 'SP': 10, 'OP': 10,
+        # 大连商品交易所
         'Y': 10, 'P': 10, 'A': 10, 'B': 10, 'M': 10, 'C': 10, 'CS': 10, 'RR': 10,
         'JD': 10, 'L': 5, 'PP': 5, 'V': 5, 'EG': 10, 'PG': 20, 'EB': 10, 'I': 100,
-        'JM': 60, 'J': 100, 'LH': 16, 'FB': 10, 'BB': 10, 'LG': 90,
+        'JM': 60, 'J': 100, 'LH': 16, 'FB': 10, 'BB': 10, 'LG': 90, 'BZ': 5,
+        # 郑州商品交易所
         'TA': 5, 'MA': 50, 'SA': 20, 'FG': 20, 'SR': 10, 'CF': 5, 'CY': 5,
         'OI': 10, 'RM': 10, 'RS': 10, 'UR': 20, 'SF': 5, 'SM': 5, 'PK': 5,
-        'AP': 10, 'CJ': 10, 'PTA': 5, 'PF': 5, 'PR': 5, 'SH': 20, 'PX': 5,
-        'SC': 1000, 'LU': 10, 'NR': 10, 'BC': 5,
-        'SI': 5, 'LC': 1, 'PS': 50,
+        'AP': 10, 'CJ': 10, 'PF': 5, 'PR': 5, 'PL': 5,
+        'SC': 1000, 'LU': 10, 'NR': 10, 'BC': 5, 'EC': 1,
+        # 广州期货交易所
+        'SI': 5, 'LC': 1, 'PS': 50, 'PD': 1, 'PT': 1,
+        # 中国金融期货交易所
         'TS': 20000, 'TF': 10000, 'T': 10000, 'TL': 10000,
-        'IF': 300, 'IC': 200, 'IH': 300, 'IM': 200, 'PD': 1, 'PT': 1,
+        'IF': 300, 'IC': 200, 'IH': 300, 'IM': 200,
     }
     
     def parse_commission(fee_text):
@@ -124,6 +129,12 @@ try:
         if not letters:
             return None, None
         base_symbol = letters[0].upper()
+        
+        # 修正特殊品种代码
+        if 'PTA' in text.upper():
+            base_symbol = 'TA'
+        elif 'PVC' in text.upper():
+            base_symbol = 'V'
         
         # 提取最后一组4位数字
         digits = re.findall(r'\d{4}', text)
